@@ -1,0 +1,24 @@
+{
+  "name": "sc-upgrade-detector",
+  "version": "1.0.0",
+  "description": "This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "hardhat test"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.7.3",
+    "@openzeppelin/contracts-upgradeable": "^4.7.3",
+    "hardhat": "^2.10.1"
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.1.0",
+    "@openzeppelin/hardhat-upgrades": "^1.20.0",
+    "ethers": "^5.6.9"
+  }
+}
