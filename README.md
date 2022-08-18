@@ -47,7 +47,7 @@
 2. To run this check from chain we we will leverage `chainlink` based http requests.
 3. We have to keep history of this storage variable, to accomplish that, we need off-chain scheduler which will run checks periodically.
 
-### BIG PROBLEMO chainlink supports only GET requests, but rpc json requires all requests to be GET requests
+### BIG PROBLEMO chainlink supports only GET requests, but rpc json requires all requests to be POST requests
 
 # To do: 28th August
 
