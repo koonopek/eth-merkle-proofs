@@ -14,7 +14,7 @@ describe("Proxy detector PoC", function () {
     const CounterV1 = await ethers.getContractFactory("CounterV1");
 
     const counterV1 = (await upgrades.deployProxy(CounterV1, [INIT_COUNTER_VALUE])) as CounterV1; // proxy all calls, so same interface
-    await counterV1.deployed;
+    await counterV1.deployed();
 
     return { counterV1, owner, otherAccount };
   };
@@ -49,7 +49,7 @@ describe("Proxy detector PoC", function () {
   });
 
   it('should notice change of implementation', async () => {
-    const { counterV1, owner } = await loadFixture(deployV1Upgradable);
+    const { counterV1 } = await loadFixture(deployV1Upgradable);
 
     const storageAtV1 = await ethers.provider.getStorageAt(counterV1.address, IMPLEMENTATION_SLOT, "latest");
     console.log(`Implementation behind proxy V1 (before upgrade):${storageAtV1}`)

@@ -1,4 +1,4 @@
-use rlp::{decode, encode_list, NULL_RLP};
+use rlp::{decode, encode, encode_list, NULL_RLP};
 use sha3::{Digest, Keccak256};
 
 #[derive(PartialEq, Eq, Debug)]
@@ -86,7 +86,7 @@ fn cap_node(j: &Vec<(&Vec<u8>, &Vec<u8>)>, i: usize) -> Vec<u8> {
             Node::Extension(node_value) => {
                 encode_list::<Vec<u8>, Vec<_>>(&[node_value.0, node_value.1])
             }
-            Node::Leaf(node_value) => encode_list::<Vec<u8>, Vec<_>>(&[node_value.0, node_value.1]),
+            Node::Leaf(node_value) => encode_list::<Vec<u8>, Vec<_>>(&[node_value.1]),
             Node::Branch(node_value) => encode_list::<Vec<u8>, Vec<_>>(&node_value),
             Node::Empty => todo!(),
         };
@@ -205,10 +205,6 @@ fn get_key_slice(j: &Vec<(&Vec<u8>, &Vec<u8>)>, index: usize, i: usize) -> Vec<u
     j[index].0[i..(j[index].0.len() - 1)].to_vec()
 }
 
-fn from_hex(hex_string: &str) -> Vec<u8> {
-    decode_hex(String::from(hex_string).into_bytes())
-}
-
 #[test]
 fn produce_node_test() {
     assert_eq!(produce_node(&vec![], 0), Node::Empty);
@@ -221,7 +217,7 @@ fn produce_node_test() {
     let result = produce_node(
         &vec![
             (
-                &from_hex("00000000000000000000000000000000"),
+                &hex::decode("00000000000000000000000000000000").unwrap(),
                 &b"v_______________________0___0".to_vec(),
             ),
             // (
@@ -245,9 +241,8 @@ fn produce_node_test() {
             );
         }
         Node::Leaf(value) => {
-            let root_rlp = encode_list::<Vec<u8>, Vec<_>>(&[value.0, value.1]);
             assert_eq!(
-                hex::encode(kec(root_rlp)),
+                hex::encode(encode_list::<Vec<u8>, Vec<_>>(&[value.1])),
                 "5cb26357b95bb9af08475be00243ceb68ade0b66b5cd816b0c18a18c612d2d21"
             );
         }
