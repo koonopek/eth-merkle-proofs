@@ -1,0 +1,16 @@
+{
+  "name": "js-prover",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "author": "Michał Konopka",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "global": "^4.4.0",
+    "typescript": "^4.8.4"
+  }
+}

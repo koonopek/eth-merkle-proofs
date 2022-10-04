@@ -5,27 +5,9 @@
   "license": "",
   "description": "This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.",
   "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
   "scripts": {
-    "test": "hardhat test",
-    "hardhat:node": "hardhat node",
-    "deploy": "npx hardhat --network goerli deploy",
-    "upgrade": "npx hardhat --network goerli upgrade",
-    "verify-version": "npx hardhat --network goerli verify-version"
   },
-  "dependencies": {
-    "@openzeppelin/contracts": "^4.7.3",
-    "@openzeppelin/contracts-upgradeable": "^4.7.3",
-    "hardhat": "^2.10.1",
-    "merkle-patricia-tree": "^4.2.4",
-    "rlp": "^3.0.0",
-    "ts-node": "^10.9.1"
-  },
-  "devDependencies": {
-    "@nomiclabs/hardhat-ethers": "^2.1.0",
-    "@openzeppelin/hardhat-upgrades": "^1.20.0",
-    "ethers": "^5.7.1"
-  }
+  "workspaces": [
+    "packages/*"
+  ]
 }
