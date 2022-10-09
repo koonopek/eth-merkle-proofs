@@ -2825,7 +2825,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-prover@workspace:packages/js-prover":
+"js-prover@workspace:*, js-prover@workspace:packages/js-prover":
   version: 0.0.0-use.local
   resolution: "js-prover@workspace:packages/js-prover"
   dependencies:
@@ -2840,6 +2840,15 @@ __metadata:
   checksum: 75df77c1fc266973f06cce8309ce010e9e9f07ec35ab12022ed29b7f0d9c8757f5a73e1b35aa24840dced0dea7059085aa143d817aea9e188e2a80d569d9adce
   languageName: node
   linkType: hard
+
+"js-verifer@workspace:packages/js-verifier":
+  version: 0.0.0-use.local
+  resolution: "js-verifer@workspace:packages/js-verifier"
+  dependencies:
+    global: ^4.4.0
+    typescript: ^4.8.4
+  languageName: unknown
+  linkType: soft
 
 "js-yaml@npm:4.1.0":
   version: 4.1.0
@@ -3992,6 +4001,7 @@ __metadata:
     chai: ^4.3.6
     ethers: ^5.7.1
     hardhat: ^2.11.2
+    js-prover: "workspace:*"
     merkle-patricia-tree: ^4.2.4
     rlp: ^3.0.0
     ts-node: ^10.9.1
