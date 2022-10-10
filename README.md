@@ -39,3 +39,12 @@ Run:
   2. Verify version using `StorageSlotProof` => detect no change
   3. Upgrade smart contract
   4. Verify version using `StorageSlotProof` => detect change
+  
+  
+ ## TODO
+ - [ ] solidity-verifier
+ - [ ] better errors
+ - [ ] js doc
+ - [ ] abstract merkle-tries
+ - [ ] decoding values using abi
+ - [ ] cairo-verifier?
