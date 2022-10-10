@@ -6,7 +6,7 @@ This library enable you to generate and verify [ETH merkle proofs](https://eips.
 There exits three type of proofs:
 * `HeaderProof` which enable you to proof that given `block header` consist of given values, this is trival but enable later proofs
 * `AccounProof` which enable you to proof that given `address` and at `blockNumber` => has some value of `nonce,balance,storageHash,codeHash`
-* `StorageSlotProof` which enable you to proof that given `address` and at `memorySlot` and at `blockNumber` => has some `value` or does not at all.
+* `StorageSlotProof` which enable you to proof that given `address` and at `memorySlot` and at `blockNumber` => has some `value`
 
 This enable you to verify on-chain and off-chain:
 * ETH balance
