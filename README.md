@@ -1,11 +1,10 @@
 # eth-state-proofs
 
-
 ## Rationale
 This library enable you to generate and verify [ETH merkle proofs](https://eips.ethereum.org/EIPS/eip-1186), based on given *trusted* blockHash.
 
 There exits three type of proofs:
-* `HeaderProof` which enable you to proof that given block header consist of some values 
+* `HeaderProof` which enable you to proof that given `block header` consist of given values, this is trival but enable later proofs
 * `AccounProof` which enable you to proof that given `address` and at `blockNumber` => has some value of `nonce,balance,storageHash,codeHash`
 * `StorageSlotProof` which enable you to proof that given `address` and at `memorySlot` and at `blockNumber` => has some `value` or does not at all.
 
@@ -25,7 +24,7 @@ Note: When veirifing proofs we also retrive state which is verifed. So we don't 
 
 #### js-verifier
 * Verify proofs off-chain (web or nodejs)
-* Depends on connection to rpc node
+* Pure, but requires trusted `BlockHash`
 
 ####  smart-contract-upgrade-demo
 * In this example it is used to proof that some implementation behind proxy has been modified.
