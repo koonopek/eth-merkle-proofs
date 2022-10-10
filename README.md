@@ -1,4 +1,4 @@
-# eth-state-proofs
+# eth-merkle-proofs
 
 ## Rationale
 This library enable you to generate and verify [ETH merkle proofs](https://eips.ethereum.org/EIPS/eip-1186), based on given *trusted* blockHash.
