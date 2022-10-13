@@ -6,29 +6,8 @@ export type BlockHeader = any;
 
 export type VerifiedHeader = HeaderProof;
 
-export function verifyHeaderProof(header: HeaderProof, trustedChainBlockHash: string): VerifiedHeader {
-  if (blockHash(header) !== trustedChainBlockHash) {
-    throw Error("Failed to verify header proof: computed block hash is not equal")
-  }
-  return header;
-}
-
 export type VerifiedStorageSlotState = {
   value: string
-}
-
-export async function verifyStorageProof(verifiedStorageHash: string, storageSlotProof: StorageSlotProof): Promise<VerifiedStorageSlotState> {
-  const storageValueRLP = await BaseTrie.verifyProof(
-    hexToBuffer(verifiedStorageHash),
-    hexToBuffer(utils.keccak256(storageSlotProof.key)),
-    storageSlotProof.trieNodes.map(hexToBuffer)
-  );
-
-  if (storageValueRLP) {
-    return { value: utils.hexZeroPad(utils.RLP.decode(storageValueRLP), 32) }
-  } else {
-    throw Error("Failed to verify storage slot proof: trie node value is empty")
-  }
 }
 
 export type VerifedAccountState = {
@@ -38,13 +17,38 @@ export type VerifedAccountState = {
   codeHash: string
 }
 
+export enum VerificationErrorType {
+  EmptyNode = "Value is empty",
+  InvalidProof = "Some hash doesn't match",
+}
+
+export class VerificationError extends Error {
+  constructor(type: VerificationErrorType) {
+    super(type);
+  }
+}
+
+
+export function verifyHeaderProof(header: HeaderProof, trustedChainBlockHash: string): VerifiedHeader {
+  if (blockHash(header) !== trustedChainBlockHash) {
+    throw new VerificationError(VerificationErrorType.InvalidProof)
+  }
+  return header;
+}
+
+
+export async function verifyStorageProof(verifiedStorageHash: string, storageSlotProof: StorageSlotProof): Promise<VerifiedStorageSlotState> {
+  const storageValueRLP = await verifyTrie(verifiedStorageHash,storageSlotProof.trieNodes , storageSlotProof.key);
+  if (storageValueRLP) {
+    return { value: utils.RLP.decode(storageValueRLP) }
+  } else {
+    throw new VerificationError(VerificationErrorType.EmptyNode)
+  }
+}
+
 
 export async function verifyAccountProof(verifiedStateRoot: string, accountProof: AccountProof): Promise<VerifedAccountState> {
-  const accountStateRLP = await BaseTrie.verifyProof(
-    hexToBuffer(verifiedStateRoot),
-    hexToBuffer(utils.keccak256(accountProof.address)),
-    accountProof.trieNodes.map(hexToBuffer)
-  );
+  const accountStateRLP = await verifyTrie(verifiedStateRoot, accountProof.trieNodes, accountProof.address);
 
   if (accountStateRLP) {
     const accountStateRaw = utils.RLP.decode(accountStateRLP) as string[];
@@ -55,10 +59,22 @@ export async function verifyAccountProof(verifiedStateRoot: string, accountProof
       codeHash: accountStateRaw[3]
     }
   } else {
-    throw Error("Failed to verify account proof: trie node value is empty")
+    throw new VerificationError(VerificationErrorType.EmptyNode)
   }
 }
 
+
+async function verifyTrie(root: string, trieNodes: string[], key: string) {
+  try {
+    return await BaseTrie.verifyProof(
+      hexToBuffer(root),
+      hexToBuffer(utils.keccak256(key)),
+      trieNodes.map(hexToBuffer)
+    );
+  } catch (_) {
+    throw new VerificationError(VerificationErrorType.InvalidProof)
+  }
+}
 
 function hexToBuffer(hex: string) {
   const buff = Buffer.from(hex.slice(2), "hex")
@@ -100,3 +116,5 @@ function blockHash(blockHeader: HeaderProof) {
 
   return utils.keccak256(utils.RLP.encode(payload))
 }
+
+

@@ -1,11 +1,5 @@
 import { JsonRpcProvider } from '@ethersproject/providers';
 
-export interface Proof {
-  header: HeaderProof,
-  accountProof: AccountProof,
-  storageSlotProof: StorageSlotProof
-}
-
 export interface HeaderProof {
   parentHash: string,
   sha3Uncles: string,
@@ -37,12 +31,31 @@ export interface StorageSlotProof {
 
 export type BlockHeader = any;
 
+export type FullAccountProof = [HeaderProof, AccountProof];
+
+export type FullStorageSlotProof = [HeaderProof, AccountProof, StorageSlotProof];
+
+/**
+Creates Header Proof.
+Fetch a block header from node, which is can be hashed to retrive blockHash.
+@param connection {JsonRpcProvider} json rpc provider from ethers.js
+@param blockNumber {string} number of block to fetch (for example "1")
+
+@return headerProof proof for block header
+*/
 export async function createHeaderProof(connection: JsonRpcProvider, blockNumber: string): Promise<HeaderProof> {
   return await getBlockHeader(connection, blockNumber);
 }
 
-export type FullAccountProof = [HeaderProof, AccountProof];
+/**
+Creates Account Proof.
+Account Proof in Patrice Merkle Trie proof, so beside proof it also contains data that it commits to.
+@param connection {JsonRpcProvider} json rpc provider from ethers.js
+@param blockNumber {string} number of block to fetch (for example "1")
+@param accountAddress {string} smart contract address or ether address
 
+@return [headerProof,accountProof] to verify accountProof, we first have to validate headerProof
+*/
 export async function createAccountProof(connection: JsonRpcProvider, blockNumber: string, accountAddress: string): Promise<FullAccountProof> {
   const headerProof = await createHeaderProof(connection, blockNumber);
 
@@ -56,8 +69,16 @@ export async function createAccountProof(connection: JsonRpcProvider, blockNumbe
   return [headerProof, accountProof]
 }
 
-export type FullStorageSlotProof = [HeaderProof, AccountProof, StorageSlotProof];
+/**
+Creates Storage Slot Proof.
+Account Proof in Patrice Merkle Trie proof, so beside proof it also contains data that it commits to.
+@param connection {JsonRpcProvider} json rpc provider from ethers.js
+@param blockNumber {string} number of block to fetch (for example "1")
+@param accountAddress {string} smart contract address or ether address
+@param memorySlotAddress {string} keccak(index_in_memory) for example keccak(0) (more info: https://medium.com/@chiqing/verify-usdc-balance-and-nft-meta-data-with-proof-3b4d065ae923)
 
+@return [headerProof,accountProof, storageSlotProof] to verify storageProof, we first have to validate headerProof and accountProof 
+*/
 export async function createStorageSlotProof(connection: JsonRpcProvider, blockNumber: string, accountAddress: string, memorySlotAddress: string): Promise<FullStorageSlotProof> {
   const [headerProof, accountProof] = await createAccountProof(connection, blockNumber, accountAddress);
 
