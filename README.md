@@ -30,17 +30,22 @@ Note: When veirifing proofs we also retrive state which is verifed. So we don't 
 * In this example it is used to proof that some implementation behind proxy has been modified.
 * I strictly assume that proxy is openzeppelin https://docs.openzeppelin.com/upgrades-plugins/1.x/proxies
 Run:
-* Set up envs
-  - `GOERLI_PRIVAT_KEY` - private key on goerli testnet, be sure to feed it with some ETH.
-  - `ALCHEMY_GOERLI_API_KEY` - api key to alchemy node
-* Run: `yarn install && yarn buld && yarn demo`
+* Set up
+  - install truffle `npm install -g truffle`
+  - run truffle network `truffle develop`
+  - paste private key from printed in previous step in `packages/smart-contract-upgrade-demo/hardhat.config.ts`
+* Run: `yarn install && yarn buld && yarn demo --network truffle`
 * Scenario
   1. Deploy contract behid upgradable proxy.
   2. Verify version using `StorageSlotProof` => detect no change
   3. Upgrade smart contract
   4. Verify version using `StorageSlotProof` => detect change
-  
-  
+* Note: you can also run demo on goerli network
+  - just set up envs:
+    - `GOERLI_PRIVAT_KEY` - private key on goerli testnet, be sure to feed it with some ETH.
+    - `ALCHEMY_GOERLI_API_KEY` - api key to alchemy node
+  - And run `yarn install && yarn buld && yarn demo --network goerli`  
+
  ## TODO
  - [ ] solidity-verifier
  - [ ] better errors

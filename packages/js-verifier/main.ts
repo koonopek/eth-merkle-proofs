@@ -48,6 +48,7 @@ export async function verifyStorageProof(verifiedStorageHash: string, storageSlo
 
 
 export async function verifyAccountProof(verifiedStateRoot: string, accountProof: AccountProof): Promise<VerifedAccountState> {
+  console.log(accountProof.address)
   const accountStateRLP = await verifyTrie(verifiedStateRoot, accountProof.trieNodes, accountProof.address);
 
   if (accountStateRLP) {

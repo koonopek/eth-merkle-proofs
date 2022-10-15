@@ -7,13 +7,8 @@ import "./scripts/deploy";
 import "./scripts/demo";
 
 
-const PRIVATE_KEY = process.env['GOERLI_PRIVAT_KEY'];
-const ALCHEMY_API_KEY = process.env['ALCHEMY_GOERLI_API_KEY'];
-
-if(!PRIVATE_KEY || !ALCHEMY_API_KEY) {
-  console.log("Demo is deployed on GOERLI testnet levarging alchemy api. To run demo please set up env variables: GOERLI_PRIVAT_KEY (funded with free eth) and ALCHEMY_GOERLI_API_KEY");
-  process.exit(1);
-}
+const PRIVATE_KEY = process.env['GOERLI_PRIVAT_KEY'] as string;
+const ALCHEMY_API_KEY = process.env['ALCHEMY_GOERLI_API_KEY'] as string;
 
 
 const config: HardhatUserConfig = {
@@ -22,7 +17,11 @@ const config: HardhatUserConfig = {
     },
     goerli: {
       url: `https://eth-goerli.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
-      accounts: [PRIVATE_KEY]
+      accounts: [`0x${PRIVATE_KEY}`]
+    },
+    truffle: {
+      url: 'http://localhost:9545',
+      accounts: ['0x8646e9a8e7b0d9d171041af9bba1095831e5f5e4c07dc624eb06cfbf34e45f1e']
     }
   },
   solidity: "0.8.9",

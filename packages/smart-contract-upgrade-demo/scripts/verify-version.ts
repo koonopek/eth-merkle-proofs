@@ -1,7 +1,8 @@
 import { task } from "hardhat/config";
-import { AlchemyProvider, JsonRpcProvider } from '@ethersproject/providers';
+import { JsonRpcProvider } from '@ethersproject/providers';
 import { createStorageSlotProof, FullStorageSlotProof } from 'js-prover';
 import { verifyHeaderProof, verifyAccountProof, verifyStorageProof } from 'js-verifer';
+import { utils } from 'ethers';
 
 task("verify-version", "Verify if contract implementation behin proxy has not changed")
   .addPositionalParam("proxyAddress", "address of contract upgradable proxy [example on goerli: 0x78B3FFd482c3D7eD63E993bAc56Ed7B1FB2428A7]")
@@ -19,8 +20,8 @@ export type Args = {
   "blockNumber": string
 }
 
-export async function verifyVersion({ proxyAddress, implAddress: expectedImplAddress, storageSlot, blockNumber }: Args) {
-  const connection = new AlchemyProvider('goerli', process.env["ALCHEMY_GOERLI_API_KEY"]);
+export async function verifyVersion({ proxyAddress, implAddress: expectedImplAddress, storageSlot, blockNumber }: Args, { ethers }: any) {
+  const connection = ethers.provider;
 
   const proof = await createStorageSlotProof(connection, blockNumber, proxyAddress, storageSlot);
 
@@ -39,12 +40,13 @@ async function verifyImplAddress(trustedBlockHash: string, expectedImplAddress: 
   const accountState = await verifyAccountProof(headerProof.stateRoot, accountProof);
 
   const storageSlotState = await verifyStorageProof(accountState.storageHash, storageSlotProof);
+  const currentImpl = utils.hexZeroPad(storageSlotState.value, 32);
 
   console.log({
     old_implementation: expectedImplAddress,
-    new_implementation: storageSlotState.value
+    new_implementation: currentImpl
   })
-  if (storageSlotState.value !== expectedImplAddress) {
+  if (currentImpl !== expectedImplAddress) {
     console.log("Implementation address has changed");
   } else {
     console.log("Implementation address hasn't changed")
