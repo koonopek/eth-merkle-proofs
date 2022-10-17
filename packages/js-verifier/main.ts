@@ -4,13 +4,21 @@ import { AccountProof, HeaderProof, StorageSlotProof } from 'js-prover';
 
 export type BlockHeader = any;
 
-export type VerifiedHeader = HeaderProof;
+export type VerifiedHeader = {
+  hash: string,
+  stateRootHash: string,
+  number: number,
+  timestamp: number
+};
 
 export type VerifiedStorageSlotState = {
+  exists: boolean,
+  // RLP bytes
   value: string
 }
 
 export type VerifedAccountState = {
+  exists: boolean,
   nonce: string,
   balance: string,
   storageHash: string,
@@ -18,49 +26,60 @@ export type VerifedAccountState = {
 }
 
 export enum VerificationErrorType {
-  EmptyNode = "Value is empty",
   InvalidProof = "Some hash doesn't match",
 }
 
-export class VerificationError extends Error {
-  constructor(type: VerificationErrorType) {
-    super(type);
-  }
-}
+export class MerkleProofVerificationError extends Error { }
 
+export const HEADER_STATE_ROOT_INDEX = 3;
+export const HEADER_NUMBER_INDEX = 8;
+export const HEADER_TIMESTAMP_INDEX = 11;
 
 export function verifyHeaderProof(header: HeaderProof, trustedChainBlockHash: string): VerifiedHeader {
-  if (blockHash(header) !== trustedChainBlockHash) {
-    throw new VerificationError(VerificationErrorType.InvalidProof)
+  const computedHash = blockHash(header);
+  if (computedHash !== trustedChainBlockHash) {
+    throw new MerkleProofVerificationError(VerificationErrorType.InvalidProof)
   }
-  return header;
+  const decodedHeader = utils.RLP.decode(header);
+  return {
+    hash: trustedChainBlockHash,
+    number: decodedHeader[HEADER_NUMBER_INDEX],
+    timestamp: decodedHeader[HEADER_STATE_ROOT_INDEX],
+    stateRootHash: decodedHeader[HEADER_STATE_ROOT_INDEX]
+  };
 }
 
 
 export async function verifyStorageProof(verifiedStorageHash: string, storageSlotProof: StorageSlotProof): Promise<VerifiedStorageSlotState> {
-  const storageValueRLP = await verifyTrie(verifiedStorageHash,storageSlotProof.trieNodes , storageSlotProof.key);
+  const storageValueRLP = await verifyTrie(verifiedStorageHash, storageSlotProof.trieNodes, storageSlotProof.key);
   if (storageValueRLP) {
-    return { value: utils.RLP.decode(storageValueRLP) }
+    return { exists: true, value: utils.RLP.decode(storageValueRLP) }
   } else {
-    throw new VerificationError(VerificationErrorType.EmptyNode)
+    return { exists: false, value: "" };
   }
 }
 
 
 export async function verifyAccountProof(verifiedStateRoot: string, accountProof: AccountProof): Promise<VerifedAccountState> {
-  console.log(accountProof.address)
   const accountStateRLP = await verifyTrie(verifiedStateRoot, accountProof.trieNodes, accountProof.address);
 
   if (accountStateRLP) {
     const accountStateRaw = utils.RLP.decode(accountStateRLP) as string[];
     return {
+      exists: true,
       nonce: accountStateRaw[0],
       balance: accountStateRaw[1],
       storageHash: accountStateRaw[2],
       codeHash: accountStateRaw[3]
     }
   } else {
-    throw new VerificationError(VerificationErrorType.EmptyNode)
+    return {
+      exists: false,
+      nonce: "",
+      balance: "",
+      storageHash: "",
+      codeHash: ""
+    }
   }
 }
 
@@ -73,7 +92,7 @@ async function verifyTrie(root: string, trieNodes: string[], key: string) {
       trieNodes.map(hexToBuffer)
     );
   } catch (_) {
-    throw new VerificationError(VerificationErrorType.InvalidProof)
+    throw new MerkleProofVerificationError(VerificationErrorType.InvalidProof)
   }
 }
 
@@ -82,40 +101,10 @@ function hexToBuffer(hex: string) {
   return buff;
 }
 
-
-function nibbleToHex(nibbles: string): string {
-  if (nibbles.length % 2 === 0) {
-    return nibbles;
-  }
-
-  if (nibbles === '0x0') {
-    return '0x'
-  }
-
-  return `0x0${nibbles.slice(2)}`
+function blockHash(headerProof: HeaderProof) {
+  return utils.keccak256(headerProof)
 }
 
-function blockHash(blockHeader: HeaderProof) {
-  const payload = [
-    blockHeader.parentHash,
-    blockHeader.sha3Uncles,
-    blockHeader.miner,
-    blockHeader.stateRoot,
-    blockHeader.transactionsRoot,
-    blockHeader.receiptsRoot,
-    blockHeader.logsBloom,
-    blockHeader.difficulty,
-    blockHeader.number,
-    blockHeader.gasLimit,
-    blockHeader.gasUsed,
-    blockHeader.timestamp,
-    blockHeader.extraData,
-    blockHeader.mixHash,
-    blockHeader.nonce,
-    blockHeader.baseFeePerGas
-  ].map(nibbleToHex);
 
-  return utils.keccak256(utils.RLP.encode(payload))
-}
 
 

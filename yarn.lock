@@ -2841,7 +2841,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-verifer@workspace:packages/js-verifier":
+"js-verifer@workspace:*, js-verifer@workspace:packages/js-verifier":
   version: 0.0.0-use.local
   resolution: "js-verifer@workspace:packages/js-verifier"
   dependencies:
@@ -3863,6 +3863,8 @@ __metadata:
 "sc-upgrade-detector@workspace:.":
   version: 0.0.0-use.local
   resolution: "sc-upgrade-detector@workspace:."
+  dependencies:
+    solidity-rlp: ^2.0.5
   languageName: unknown
   linkType: soft
 
@@ -4002,6 +4004,7 @@ __metadata:
     ethers: ^5.7.1
     hardhat: ^2.11.2
     js-prover: "workspace:*"
+    js-verifer: "workspace:*"
     merkle-patricia-tree: ^4.2.4
     rlp: ^3.0.0
     ts-node: ^10.9.1
@@ -4053,6 +4056,13 @@ __metadata:
   version: 0.4.35
   resolution: "solidity-ast@npm:0.4.35"
   checksum: 6cde9e656dee814fa3d7ce9ef42f1cd0344162515d0d215dbd7d18bf931ed9cd6ce4093aed0a8abbcfb5a4a6faf6638f615aaad479e4657054c6a4ae2cb5092e
+  languageName: node
+  linkType: hard
+
+"solidity-rlp@npm:^2.0.5":
+  version: 2.0.5
+  resolution: "solidity-rlp@npm:2.0.5"
+  checksum: 1673fb25082d4dabe4b1cf5b76f7734c947af39c7023b70a97e24db0c5d11714a4aead232f661170995df579840562fa62c872165914c6adc853b030697dffd0
   languageName: node
   linkType: hard
 

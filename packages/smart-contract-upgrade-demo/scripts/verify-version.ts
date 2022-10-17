@@ -24,20 +24,17 @@ export async function verifyVersion({ proxyAddress, implAddress: expectedImplAdd
   const connection = ethers.provider;
 
   const proof = await createStorageSlotProof(connection, blockNumber, proxyAddress, storageSlot);
-
-  // this can be obtain from on chain smart contract
   const trustedBlockHash = await solidity_blockhash(connection, blockNumber);
 
   await verifyImplAddress(trustedBlockHash, expectedImplAddress, proof);
 }
 
 
-// in solidity
 async function verifyImplAddress(trustedBlockHash: string, expectedImplAddress: string, [headerProof, accountProof, storageSlotProof]: FullStorageSlotProof) {
 
-  verifyHeaderProof(headerProof, trustedBlockHash);
+  const header = verifyHeaderProof(headerProof, trustedBlockHash);
 
-  const accountState = await verifyAccountProof(headerProof.stateRoot, accountProof);
+  const accountState = await verifyAccountProof(header.stateRootHash, accountProof);
 
   const storageSlotState = await verifyStorageProof(accountState.storageHash, storageSlotProof);
   const currentImpl = utils.hexZeroPad(storageSlotState.value, 32);
@@ -53,7 +50,6 @@ async function verifyImplAddress(trustedBlockHash: string, expectedImplAddress: 
   }
 }
 
-
 async function solidity_blockhash(connection: JsonRpcProvider, blockNumber: string) {
   const block = await getBlockHeader(connection, blockNumber);
 
@@ -68,4 +64,3 @@ async function getBlockHeader(
 
   return response;
 }
-

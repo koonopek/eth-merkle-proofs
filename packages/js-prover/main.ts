@@ -1,23 +1,7 @@
 import { JsonRpcProvider } from '@ethersproject/providers';
+import { utils } from 'ethers';
 
-export interface HeaderProof {
-  parentHash: string,
-  sha3Uncles: string,
-  miner: string,
-  stateRoot: string,
-  transactionsRoot: string,
-  receiptsRoot: string,
-  logsBloom: string,
-  difficulty: string,
-  number: string,
-  gasLimit: string,
-  gasUsed: string,
-  timestamp: string,
-  extraData: string,
-  mixHash: string,
-  nonce: string,
-  baseFeePerGas: string
-}
+export type HeaderProof = string;
 
 export interface AccountProof {
   address: string,
@@ -41,10 +25,30 @@ Fetch a block header from node, which is can be hashed to retrive blockHash.
 @param connection {JsonRpcProvider} json rpc provider from ethers.js
 @param blockNumber {string} number of block to fetch (for example "1")
 
-@return headerProof proof for block header
+@return headerProof proof - rlp encoded header
 */
 export async function createHeaderProof(connection: JsonRpcProvider, blockNumber: string): Promise<HeaderProof> {
-  return await getBlockHeader(connection, blockNumber);
+  const blockHeader = await getBlockHeader(connection, blockNumber);
+  const payload = [
+    blockHeader.parentHash,
+    blockHeader.sha3Uncles,
+    blockHeader.miner,
+    blockHeader.stateRoot,
+    blockHeader.transactionsRoot,
+    blockHeader.receiptsRoot,
+    blockHeader.logsBloom,
+    blockHeader.difficulty,
+    blockHeader.number,
+    blockHeader.gasLimit,
+    blockHeader.gasUsed,
+    blockHeader.timestamp,
+    blockHeader.extraData,
+    blockHeader.mixHash,
+    blockHeader.nonce,
+    blockHeader.baseFeePerGas
+  ].map(nibbleToHex);
+
+  return utils.RLP.encode(payload);
 }
 
 /**
@@ -90,6 +94,18 @@ export async function createStorageSlotProof(connection: JsonRpcProvider, blockN
   }
 
   return [headerProof, accountProof, storageSlotProof]
+}
+
+function nibbleToHex(nibble: string): string {
+  if (nibble.length % 2 === 0) {
+    return nibble;
+  }
+
+  if (nibble === '0x0') {
+    return '0x'
+  }
+
+  return `0x0${nibble.slice(2)}`
 }
 
 async function getBlockHeader(
