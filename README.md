@@ -1,5 +1,5 @@
 # eth-merkle-proofs
-
+[![Node.js CI](https://github.com/koonopek/eth-merkle-proofs/actions/workflows/node.js.yml/badge.svg?branch=main)](https://github.com/koonopek/eth-merkle-proofs/actions/workflows/node.js.yml)
 
 ## Rationale
 This library enable you to generate and verify [ETH merkle proofs](https://eips.ethereum.org/EIPS/eip-1186), based on given *trusted* blockHash.
