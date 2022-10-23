@@ -1,5 +1,6 @@
 # eth-merkle-proofs
 
+
 ## Rationale
 This library enable you to generate and verify [ETH merkle proofs](https://eips.ethereum.org/EIPS/eip-1186), based on given *trusted* blockHash.
 
@@ -33,9 +34,8 @@ Run:
 * Set up
   - install truffle `npm install -g truffle`
   - run truffle network `truffle develop`
-  - paste private key from printed in previous step in `packages/smart-contract-upgrade-demo/hardhat.config.ts`
 * Run: `yarn install && yarn buld && yarn demo --network truffle`
-* Scenario
+* What is happenning?
   1. Deploy contract behid upgradable proxy.
   2. Verify version using `StorageSlotProof` => detect no change
   3. Upgrade smart contract
@@ -46,10 +46,14 @@ Run:
     - `ALCHEMY_GOERLI_API_KEY` - api key to alchemy node
   - And run `yarn install && yarn buld && yarn demo --network goerli`  
 
- ## TODO
+## Resources:
+- talk about use cases: https://www.youtube.com/watch?v=ysW-Bq05pJQ&ab_channel=LinkTime
+- another talk: https://www.youtube.com/watch?app=desktop&v=ZHNrAXf3RDE&ab_channel=EthereumFoundation
+- set of great articles which deep dive in state proofs (thread on the end of article): https://medium.com/@chiqing/verify-usdc-balance-and-nft-meta-data-with-proof-3b4d065ae923
+
+ ## TODO 
+ - [ ] write `verifyFullAccountProof` and `verifyFullStorageSlotProof`
+ - [ ] test-data
  - [ ] solidity-verifier
- - [ ] better errors
  - [ ] js doc
- - [ ] abstract merkle-tries
- - [ ] decoding values using abi
  - [ ] cairo-verifier?
