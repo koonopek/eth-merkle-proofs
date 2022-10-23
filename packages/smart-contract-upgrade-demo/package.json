@@ -17,6 +17,7 @@
     "@openzeppelin/contracts": "^4.7.3",
     "@openzeppelin/contracts-upgradeable": "^4.7.3",
     "hardhat": "^2.11.2",
+    "hardhat-gas-reporter": "^1.0.9",
     "js-prover": "workspace:*",
     "js-verifer": "workspace:*",
     "merkle-patricia-tree": "^4.2.4",
