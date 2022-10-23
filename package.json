@@ -6,6 +6,7 @@
   "description": "This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.",
   "main": "index.js",
   "scripts": {
+    "ci": "yarn install --immutable --immutable-cache --check-cache",
     "demo": "yarn workspace smart-contract-upgrade-demo run demo",
     "build": "yarn workspaces foreach -tpv run build",
     "test": "yarn workspaces foreach -tpv run test"
