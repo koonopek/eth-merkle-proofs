@@ -2,13 +2,13 @@
   "name": "test-data",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/main.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test-data": "yarn build && hardhat test-data",
-    "build": "hardhat compile"
+    "test-data": "hardhat test-data",
+    "build": "rm -rf dist && hardhat compile && tsc"
   },
   "author": "Michal Konopka",
   "license": "UNLICENSED",

@@ -6,9 +6,9 @@ export type BlockHeader = any;
 
 export type VerifiedHeader = {
   hash: string,
-  stateRootHash: string,
-  number: number,
+  number: string,
   timestamp: number
+  stateRootHash: string,
 };
 
 export type VerifiedStorageSlotState = {
@@ -25,8 +25,9 @@ export type VerifedAccountState = {
   codeHash: string
 }
 
-export enum VerificationErrorType {
+export enum ErrorMessage {
   InvalidProof = "Some hash doesn't match",
+  NothingToVerify = "Trie nodes array is empty, nothing to verify"
 }
 
 export class MerkleProofVerificationError extends Error { }
@@ -35,31 +36,30 @@ export const HEADER_STATE_ROOT_INDEX = 3;
 export const HEADER_NUMBER_INDEX = 8;
 export const HEADER_TIMESTAMP_INDEX = 11;
 
+
+export function checkTrieNodes(trieNodes: string[]) {
+  if(trieNodes.length === 0) {
+    throw new MerkleProofVerificationError(ErrorMessage.NothingToVerify)
+  }
+}
+
 export function verifyHeaderProof(header: HeaderProof, trustedChainBlockHash: string): VerifiedHeader {
   const computedHash = blockHash(header);
   if (computedHash !== trustedChainBlockHash) {
-    throw new MerkleProofVerificationError(VerificationErrorType.InvalidProof)
+    throw new MerkleProofVerificationError(ErrorMessage.InvalidProof)
   }
   const decodedHeader = utils.RLP.decode(header);
   return {
     hash: trustedChainBlockHash,
     number: decodedHeader[HEADER_NUMBER_INDEX],
-    timestamp: decodedHeader[HEADER_STATE_ROOT_INDEX],
+    timestamp: decodedHeader[HEADER_TIMESTAMP_INDEX],
     stateRootHash: decodedHeader[HEADER_STATE_ROOT_INDEX]
   };
 }
 
-
-export async function verifyStorageProof(verifiedStorageHash: string, storageSlotProof: StorageSlotProof): Promise<VerifiedStorageSlotState> {
-  const storageValueRLP = await verifyTrie(verifiedStorageHash, storageSlotProof.trieNodes, storageSlotProof.key);
-  if (storageValueRLP) {
-    return { exists: true, value: utils.RLP.decode(storageValueRLP) }
-  } else {
-    return { exists: false, value: "" };
-  }
-}
-
-
+/**
+* If Account hasn't received or send any transaction it will return {existing: false}
+*/
 export async function verifyAccountProof(verifiedStateRoot: string, accountProof: AccountProof): Promise<VerifedAccountState> {
   const accountStateRLP = await verifyTrie(verifiedStateRoot, accountProof.trieNodes, accountProof.address);
 
@@ -83,8 +83,17 @@ export async function verifyAccountProof(verifiedStateRoot: string, accountProof
   }
 }
 
+export async function verifyStorageSlotProof(verifiedStorageHash: string, storageSlotProof: StorageSlotProof): Promise<VerifiedStorageSlotState> {
+  const storageValueRLP = await verifyTrie(verifiedStorageHash, storageSlotProof.trieNodes, storageSlotProof.key);
+  if (storageValueRLP) {
+    return { exists: true, value: '0x' + storageValueRLP.toString('hex') }
+  } else {
+    return { exists: false, value: "" };
+  }
+}
 
 async function verifyTrie(root: string, trieNodes: string[], key: string) {
+  checkTrieNodes(trieNodes);
   try {
     return await BaseTrie.verifyProof(
       hexToBuffer(root),
@@ -92,7 +101,7 @@ async function verifyTrie(root: string, trieNodes: string[], key: string) {
       trieNodes.map(hexToBuffer)
     );
   } catch (_) {
-    throw new MerkleProofVerificationError(VerificationErrorType.InvalidProof)
+    throw new MerkleProofVerificationError(ErrorMessage.InvalidProof)
   }
 }
 
@@ -104,7 +113,3 @@ function hexToBuffer(hex: string) {
 function blockHash(headerProof: HeaderProof) {
   return utils.keccak256(headerProof)
 }
-
-
-
-

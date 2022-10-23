@@ -1,4 +1,5 @@
 import { JsonRpcProvider } from '@ethersproject/providers';
+import assert from 'assert';
 import { utils } from 'ethers';
 
 export type HeaderProof = string;
@@ -28,7 +29,7 @@ Fetch a block header from node, which is can be hashed to retrive blockHash.
 @return headerProof proof - rlp encoded header
 */
 export async function createHeaderProof(connection: JsonRpcProvider, blockNumber: string): Promise<HeaderProof> {
-  const blockHeader = await getBlockHeader(connection, blockNumber);
+  const blockHeader = await getBlockByNumber(connection, blockNumber);
   const payload = [
     blockHeader.parentHash,
     blockHeader.sha3Uncles,
@@ -46,7 +47,7 @@ export async function createHeaderProof(connection: JsonRpcProvider, blockNumber
     blockHeader.mixHash,
     blockHeader.nonce,
     blockHeader.baseFeePerGas
-  ].map(nibbleToHex);
+  ].map(hexPadWithZero);
 
   return utils.RLP.encode(payload);
 }
@@ -55,7 +56,7 @@ export async function createHeaderProof(connection: JsonRpcProvider, blockNumber
 Creates Account Proof.
 Account Proof in Patrice Merkle Trie proof, so beside proof it also contains data that it commits to.
 @param connection {JsonRpcProvider} json rpc provider from ethers.js
-@param blockNumber {string} number of block to fetch (for example "1")
+@param blockNumber {string} number of block to fetch (for example "0x01")
 @param accountAddress {string} smart contract address or ether address
 
 @return [headerProof,accountProof] to verify accountProof, we first have to validate headerProof
@@ -77,7 +78,7 @@ export async function createAccountProof(connection: JsonRpcProvider, blockNumbe
 Creates Storage Slot Proof.
 Account Proof in Patrice Merkle Trie proof, so beside proof it also contains data that it commits to.
 @param connection {JsonRpcProvider} json rpc provider from ethers.js
-@param blockNumber {string} number of block to fetch (for example "1")
+@param blockNumber {string} number of block to fetch (for example "0x01")
 @param accountAddress {string} smart contract address or ether address
 @param memorySlotAddress {string} keccak(index_in_memory) for example keccak(0) (more info: https://medium.com/@chiqing/verify-usdc-balance-and-nft-meta-data-with-proof-3b4d065ae923)
 
@@ -96,7 +97,7 @@ export async function createStorageSlotProof(connection: JsonRpcProvider, blockN
   return [headerProof, accountProof, storageSlotProof]
 }
 
-function nibbleToHex(nibble: string): string {
+export function hexPadWithZero(nibble: string): string {
   if (nibble.length % 2 === 0) {
     return nibble;
   }
@@ -108,11 +109,12 @@ function nibbleToHex(nibble: string): string {
   return `0x0${nibble.slice(2)}`
 }
 
-async function getBlockHeader(
+async function getBlockByNumber(
   connection: JsonRpcProvider,
   blockNumber: string
 ): Promise<BlockHeader> {
   const response = await connection.send("eth_getBlockByNumber", [blockNumber, false]);
+  assert.ok(response, `Couldn't get block by number ${blockNumber}`)
 
   return response;
 }
@@ -124,6 +126,7 @@ async function getStorageProof(
   blockNumber: string
 ) {
   const response = await connection.send("eth_getProof", [contractAddress, [storageSlot], blockNumber]);
+  assert.ok(response, `Couldn't get eth_getProof`)
 
   return response;
 }
@@ -134,6 +137,7 @@ async function getAccountProof(
   blockNumber: string
 ) {
   const response = await connection.send("eth_getProof", [address, [], blockNumber]);
+  assert.ok(response, `Couldn't get eth_getProof`)
 
   return response;
 }

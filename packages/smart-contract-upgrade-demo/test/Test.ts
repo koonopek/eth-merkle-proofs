@@ -52,14 +52,11 @@ describe("Proxy detector PoC", function () {
     const { counterV1 } = await loadFixture(deployV1Upgradable);
 
     const storageAtV1 = await ethers.provider.getStorageAt(counterV1.address, IMPLEMENTATION_SLOT, "latest");
-    console.log(`Implementation behind proxy V1 (before upgrade):${storageAtV1}`)
 
     const CounterV2 = await ethers.getContractFactory("CounterV2");
     const counterV2 = await upgrades.upgradeProxy(counterV1, CounterV2);
 
     const storageAtV2 = await ethers.provider.getStorageAt(counterV2.address, IMPLEMENTATION_SLOT, "latest");
-    console.log(`Implementation behind proxy V2 (after upgrade):${storageAtV2}`)
-
     expect(storageAtV1).not.to.eq(storageAtV2);
   });
 

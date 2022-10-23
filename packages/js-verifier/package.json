@@ -4,12 +4,14 @@
   "description": "",
   "main": "dist/main.js",
   "scripts": {
-    "build": "tsc"
+    "build": "rm -rf dist && tsc",
+    "test": "yarn build && node dist/test.js"
   },
   "author": "Michał Konopka",
   "license": "UNLICENSED",
   "dependencies": {
     "global": "^4.4.0",
+    "js-prover": "workspace:*",
     "typescript": "^4.8.4"
   }
 }
